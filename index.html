@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="uk">
+
+<head>
+  <meta charset="UTF-8">
+  <title>KoncertLibe info – Мапа Wrocław</title>
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    #map {
+      height: 100vh;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="map"></div>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+  <script>
+    /* =========================
+       1. ІНІЦІАЛІЗАЦІЯ МАПИ
+    ========================= */
+    const map = L.map('map').setView([51.1079, 17.0385], 13);
+
+    /* =========================
+       2. БАЗОВІ ШАРИ
+    ========================= */
+    const baseMaps = {
+      "Світла": L.tileLayer(
+        'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+        { attribution: '© OpenStreetMap © CartoDB' }
+      ),
+      "Темна": L.tileLayer(
+        'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+        { attribution: '© OpenStreetMap © CartoDB' }
+      ),
+      "OSM": L.tileLayer(
+        'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+        { attribution: '© OpenStreetMap' }
+      )
+    };
+
+    baseMaps["Світла"].addTo(map);
+
+    /* =========================
+       3. ІКОНКИ
+    ========================= */
+    const icons = {
+      flyers: L.icon({
+        iconUrl: 'icons/flyer.png',
+        iconSize: [32, 32],
+        iconAnchor: [16, 32],
+        popupAnchor: [0, -32]
+      }),
+      posters: L.icon({
+        iconUrl: 'icons/poster.png',
+        iconSize: [32, 32],
+        iconAnchor: [16, 32],
+        popupAnchor: [0, -32]
+      }),
+      shops: L.icon({
+        iconUrl: 'icons/shop.png',
+        iconSize: [32, 32],
+        iconAnchor: [16, 32],
+        popupAnchor: [0, -32]
+      })
+    };
+
+    /* =========================
+       4. ШАРИ
+    ========================= */
+    const layers = {
+      flyers: L.layerGroup(),
+      posters: L.layerGroup(),
+      shops: L.layerGroup()
+    };
+
+    /* =========================
+       5. ДАНІ (ТУТ ДОДАЄШ МІСЦЯ)
+    ========================= */
+    const places = [
+      {
+        type: "flyers",
+        coords: [51.110, 17.032],
+        title: "Флаєри",
+        address: "ul. Testowa 10",
+        hours: "12:00–20:00"
+      },
+      {
+        type: "shops",
+        coords: [51.105, 17.045],
+        title: "Магазин – партнер",
+        address: "ul. Testowa 12",
+        hours: "10:00–20:00"
+      },
+      {
+        type: "posters",
+        coords: [51.105, 17.04511],
+        title: "Точка з афішами",
+        address: "ul. Testowa 12",
+        hours: "10:00–20:00"
+      }
+
+      // 👉 Щоб додати нове місце —
+      // просто скопіюй об’єкт і зміни дані
+    ];
+
+    /* =========================
+       6. СТВОРЕННЯ МАРКЕРІВ
+    ========================= */
+    places.forEach(place => {
+      L.marker(place.coords, { icon: icons[place.type] })
+        .bindPopup(`
+        <strong>${place.title}</strong><br>
+        Адреса: ${place.address}<br>
+        Графік: ${place.hours}
+      `)
+        .addTo(layers[place.type]);
+    });
+
+    /* =========================
+       7. ДОДАЄМО ШАРИ НА МАПУ
+    ========================= */
+    layers.flyers.addTo(map);
+    layers.posters.addTo(map);
+    layers.shops.addTo(map);
+
+    /* =========================
+       8. КОНТРОЛ ШАРІВ
+    ========================= */
+    L.control.layers(baseMaps, {
+      "Флаєри": layers.flyers,
+      "Афіші": layers.posters,
+      "Магазини": layers.shops
+    }).addTo(map);
+
+  </script>
+
+</body>
+
+</html>
