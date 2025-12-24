@@ -5,16 +5,34 @@
   <meta charset="UTF-8">
   <title>KoncertLibe info – Мапа Wrocław</title>
 
+  <!-- Мобільна адаптація -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 
   <style>
+    html,
     body {
       margin: 0;
+      padding: 0;
+      height: 100%;
       font-family: Arial, sans-serif;
     }
 
     #map {
       height: 100vh;
+    }
+
+    /* Обмежуємо ширину попапів на маленьких екранах */
+    .leaflet-popup-content-wrapper {
+      max-width: 200px;
+    }
+
+    /* Адаптивні стилі для смартфонів */
+    @media (max-width: 600px) {
+      .leaflet-popup-content {
+        font-size: 14px;
+      }
     }
   </style>
 </head>
@@ -29,7 +47,11 @@
     /* =========================
        1. ІНІЦІАЛІЗАЦІЯ МАПИ
     ========================= */
-    const map = L.map('map').setView([51.1079, 17.0385], 13);
+    const map = L.map('map', {
+      tap: true,
+      touchZoom: true,
+      zoomControl: true
+    }).setView([51.1079, 17.0385], 13);
 
     /* =========================
        2. БАЗОВІ ШАРИ
@@ -52,27 +74,16 @@
     baseMaps["Світла"].addTo(map);
 
     /* =========================
-       3. ІКОНКИ
+       3. ІКОНКИ (менші для мобільних)
     ========================= */
+    const iconSize = window.innerWidth < 600 ? [24, 24] : [32, 32];
+    const iconAnchor = [iconSize[0] / 2, iconSize[1]];
+    const popupAnchor = [0, -iconSize[1]];
+
     const icons = {
-      flyers: L.icon({
-        iconUrl: 'icons/flyer.png',
-        iconSize: [32, 32],
-        iconAnchor: [16, 32],
-        popupAnchor: [0, -32]
-      }),
-      posters: L.icon({
-        iconUrl: 'icons/poster.png',
-        iconSize: [32, 32],
-        iconAnchor: [16, 32],
-        popupAnchor: [0, -32]
-      }),
-      shops: L.icon({
-        iconUrl: 'icons/shop.png',
-        iconSize: [32, 32],
-        iconAnchor: [16, 32],
-        popupAnchor: [0, -32]
-      })
+      flyers: L.icon({ iconUrl: 'icons/flyer.png', iconSize, iconAnchor, popupAnchor }),
+      posters: L.icon({ iconUrl: 'icons/poster.png', iconSize, iconAnchor, popupAnchor }),
+      shops: L.icon({ iconUrl: 'icons/shop.png', iconSize, iconAnchor, popupAnchor })
     };
 
     /* =========================
@@ -85,7 +96,7 @@
     };
 
     /* =========================
-       5. ДАНІ (ТУТ ДОДАЄШ МІСЦЯ)
+       5. ДАНІ (Google Sheet CSV)
     ========================= */
     const sheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSe5LSFMqfWCAF516DuZF3Vm5Q5JCunY4CwCqEuyOkfQG2PXMlAGz93FmPxiQbsfYorpCqdqfyGgXAN/pub?output=csv';
 
@@ -104,31 +115,17 @@
       });
     }
 
-    // Викликаємо при старті мапи
     loadPlaces();
 
     /* =========================
-       6. СТВОРЕННЯ МАРКЕРІВ
-    ========================= */
-    // places.forEach(place => {
-    //   L.marker(place.coords, { icon: icons[place.type] })
-    //     .bindPopup(`
-    //     <strong>${place.title}</strong><br>
-    //     Адреса: ${place.address}<br>
-    //     Графік: ${place.hours}
-    //   `)
-    //     .addTo(layers[place.type]);
-    // });
-
-    /* =========================
-       7. ДОДАЄМО ШАРИ НА МАПУ
+       6. ДОДАЄМО ШАРИ НА МАПУ
     ========================= */
     layers.flyers.addTo(map);
     layers.posters.addTo(map);
     layers.shops.addTo(map);
 
     /* =========================
-       8. КОНТРОЛ ШАРІВ
+       7. КОНТРОЛЬ ШАРІВ
     ========================= */
     L.control.layers(baseMaps, {
       "Флаєри": layers.flyers,
