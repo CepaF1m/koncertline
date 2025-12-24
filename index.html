@@ -87,32 +87,25 @@
     /* =========================
        5. ДАНІ (ТУТ ДОДАЄШ МІСЦЯ)
     ========================= */
-    const places = [
-      {
-        type: "flyers",
-        coords: [51.110, 17.032],
-        title: "Флаєри",
-        address: "ul. Testowa 10",
-        hours: "12:00–20:00"
-      },
-      {
-        type: "shops",
-        coords: [51.105, 17.045],
-        title: "Магазин – партнер",
-        address: "ul. Testowa 12",
-        hours: "10:00–20:00"
-      },
-      {
-        type: "posters",
-        coords: [51.105, 17.04511],
-        title: "Точка з афішами",
-        address: "ul. Testowa 12",
-        hours: "10:00–20:00"
-      }
+    const sheetUrl = 'https://docs.google.com/spreadsheets/d/e/https://docs.google.com/spreadsheets/d/e/2PACX-1vSe5LSFMqfWCAF516DuZF3Vm5Q5JCunY4CwCqEuyOkfQG2PXMlAGz93FmPxiQbsfYorpCqdqfyGgXAN/pub?output=csv/pub?output=csv';
 
-      // 👉 Щоб додати нове місце —
-      // просто скопіюй об’єкт і зміни дані
-    ];
+    async function loadPlaces() {
+      const res = await fetch(sheetUrl);
+      const csv = await res.text();
+
+      const rows = csv.split('\n').slice(1); // пропускаємо заголовок
+      rows.forEach(row => {
+        const [type, lat, lng, title, address, hours] = row.split(',');
+        if (type && lat && lng) {
+          L.marker([parseFloat(lat), parseFloat(lng)], { icon: icons[type] })
+            .bindPopup(`<strong>${title}</strong><br>Адреса: ${address}<br>Графік: ${hours}`)
+            .addTo(layers[type]);
+        }
+      });
+    }
+
+    // Викликаємо при старті мапи
+    loadPlaces();
 
     /* =========================
        6. СТВОРЕННЯ МАРКЕРІВ
