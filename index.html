@@ -34,6 +34,27 @@
         font-size: 14px;
       }
     }
+
+    /* Стилі легенди */
+    .legend {
+      background: white;
+      padding: 8px;
+      border-radius: 5px;
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+      line-height: 24px;
+      font-size: 14px;
+    }
+
+    .legend i {
+      width: 24px;
+      height: 24px;
+      display: inline-block;
+      margin-right: 5px;
+      vertical-align: middle;
+      background-size: 20px 20px;
+      background-repeat: no-repeat;
+      background-position: center;
+    }
   </style>
 </head>
 
@@ -74,7 +95,7 @@
     baseMaps["Світла"].addTo(map);
 
     /* =========================
-       3. ІКОНКИ (менші для мобільних)
+       3. ІКОНКИ
     ========================= */
     const iconSize = window.innerWidth < 600 ? [24, 24] : [32, 32];
     const iconAnchor = [iconSize[0] / 2, iconSize[1]];
@@ -104,7 +125,7 @@
       const res = await fetch(sheetUrl);
       const csv = await res.text();
 
-      const rows = csv.split('\n').slice(1); // пропускаємо заголовок
+      const rows = csv.split('\n').slice(1);
       rows.forEach(row => {
         const [type, lat, lng, title, address, hours] = row.split(',');
         if (type && lat && lng) {
@@ -133,6 +154,23 @@
       "Магазини": layers.shops
     }).addTo(map);
 
+    /* =========================
+       8. ЛЕГЕНДА
+    ========================= */
+    const legend = L.control({ position: 'bottomright' });
+
+    legend.onAdd = function (map) {
+      const div = L.DomUtil.create('div', 'legend');
+      div.innerHTML = `
+        <h4>Легенда</h4>
+        <i style="background-image: url('icons/flyer.png');"></i> Флаєри<br>
+        <i style="background-image: url('icons/poster.png');"></i> Афіші<br>
+        <i style="background-image: url('icons/shop.png');"></i> Магазини
+      `;
+      return div;
+    };
+
+    legend.addTo(map);
   </script>
 
 </body>
